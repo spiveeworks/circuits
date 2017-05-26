@@ -5,7 +5,7 @@ struct Or(JunctionMem);
 
 impl Deref for And
 {
-    Target = JunctionMem;
+    type Target = JunctionMem;
     fn deref(&self) -> &JunctionMem
       {&self.0}
 }
@@ -25,7 +25,7 @@ impl From<JunctionMem> for And
 
 impl Deref for Or
 {
-    Target = JunctionMem;
+    type Target = JunctionMem;
     fn deref(&self) -> &JunctionMem
       {&self.0}
 }
