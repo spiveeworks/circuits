@@ -3,19 +3,19 @@ mod update
 {
     pub struct Update 
     {
-        rising: Box<[u8]>, 
-        falling: Box<[u8]>, 
-        thin: Box<[u8]>,
+        pub rising: Box<[u8]>, 
+        pub falling: Box<[u8]>, 
+        pub thin: Box<[u8]>,
     }
-    
-    fn singleton(input: u8) -> [Box<u8>;3]
-      {[Box::new([input]), Box::default(), Box::default()]}
+    type Triple<T> = (T, T, T);
+    fn singleton(input: u8) -> Triple<Box<[u8]>>
+      {(Box::new([input]), Box::default(), Box::default())}
     
     impl Update
     {
-        fn thick_singleton(state: bool) -> Self
+        pub fn thick_singleton(state: bool) -> Self
         {
-            let [updated, empty1, empty2] = singleton(0);
+            let (updated, empty1, empty2) = singleton(0);
             if state
             {
                 Update 
@@ -35,9 +35,9 @@ mod update
                 }
             }
         }
-        fn thin_singleton() -> Self
+        pub fn thin_singleton() -> Self
         {
-            let [thin, thick1, thick2] = singleton(0);
+            let (thin, thick1, thick2) = singleton(0);
             Update
             {
                 rising: thick1,
@@ -61,19 +61,19 @@ mod update
 }
 
 
-trait InferGate
+pub trait InferGate
 {
     type State;
-    fn from_input(Self::State, &[bool]) -> (Self, Box<bool>);
+    fn from_input(Self::State, &[bool]) -> (Self, Box<[bool]>) where Self: Sized;
     fn into_state(Self) -> Self::State;
 }
 
-trait UpdateGate
+pub trait UpdateGate
 {
     fn update(&mut self, update::Update) -> update::Update;
 }
 
-struct JunctionMem {active: u8, total: u8}
+pub struct JunctionMem {active: u8, total: u8}
 
 impl JunctionMem
 {
@@ -83,50 +83,50 @@ impl JunctionMem
         {
             active: 
             {
-                let add_bools = |active, each|
+                let add_bools = |active, &each|
                     if each
                       {active + 1}
                     else
                       {active};
                 inputs
                     .iter()
-                    .fold(add_bools)
+                    .fold(0, add_bools)
             },
             total: 
-                inputs.size(),
+                inputs.len() as u8,
         }
     }
 }
 
-trait JunctionGate: Deref<Target=JunctionMem> + DerefMut + From<JunctionMem>
+pub trait JunctionGate: Deref<Target=JunctionMem> + DerefMut + From<JunctionMem>
 {
     fn infer_output(active: u8, total: u8) -> bool;
 
     fn mem_output(mem: &JunctionMem) -> bool
       {Self::infer_output(mem.active, mem.total)}
-    fn get_output(&self) -> bool
+    fn output(&self) -> bool
       {Self::mem_output(self)}
 }
 
 impl<G: JunctionGate> InferGate for G
 {
     type State = ();
-    fn from_input(state: (), inputs: &[bool]) -> (Self, Box<[bool]>)
+    fn from_input(_: (), inputs: &[bool]) -> (Self, Box<[bool]>)
     {
         let mem = JunctionMem::from_input(inputs);
-        let output = G::mem_output(mem);
+        let output = G::mem_output(&mem);
         (Self::from(mem), Box::new([output]))
     }
-    fn into_state(gate: G) -> () {}
+    fn into_state(_: G) -> () {}
 }
 impl<G: JunctionGate> UpdateGate for G
 {
-    fn update(gate: &mut G, update: update::Update) -> update::Update
+    fn update(&mut self, update: update::Update) -> update::Update
     {
-        let before = gate.output();
-        gate.active += update.rising.size();
-        gate.active -= update.falling.size();
-        let after = gate.output();
+        let before = self.output();
+        self.active += update.rising.len() as u8;
+        self.active -= update.falling.len() as u8;
+        let after = self.output();
         if before == after
           {update::Update::default()}
         else

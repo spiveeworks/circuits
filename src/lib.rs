@@ -1,7 +1,8 @@
+mod gate;
+mod gateimpl;
+
 #[cfg(test)]
 mod tests {
-    mod gate;
-    mod gateimpl;
 
     #[test]
     fn test_gate() 

@@ -1,3 +1,9 @@
+use std::ops::{Deref, DerefMut};
+
+use gate::{JunctionMem, JunctionGate};
+
+
+
 struct And(JunctionMem);
 struct Or(JunctionMem);
 
@@ -52,6 +58,6 @@ impl JunctionGate for And
 
 impl JunctionGate for Or
 {
-    fn infer_output(active: u8, total: u8) -> bool
+    fn infer_output(active: u8,_total: u8) -> bool
       {active >= 1}
 }
