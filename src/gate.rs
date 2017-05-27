@@ -1,5 +1,5 @@
 use std::ops::{Deref, DerefMut};
-mod update
+pub mod update
 {
     pub struct Update 
     {

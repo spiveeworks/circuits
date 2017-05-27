@@ -4,8 +4,8 @@ use gate::{JunctionMem, JunctionGate};
 
 
 
-struct And(JunctionMem);
-struct Or(JunctionMem);
+pub struct And(JunctionMem);
+pub struct Or(JunctionMem);
 
 
 
