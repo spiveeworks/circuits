@@ -61,3 +61,36 @@ impl JunctionGate for Or
     fn infer_output(active: u8,_total: u8) -> bool
       {active >= 1}
 }
+
+
+
+
+impl ThinGate for DetectRE
+{
+    fn result(&mut self, update: update::ExplicitUpdate) -> bool
+      {update.thick[0] == (false, true)}
+}
+
+
+
+
+impl ThinGate for DetectFE
+{
+    fn result(&mut self, update: update::ExplicitUpdate) -> bool
+      {update.thick[0] == (true, false)}
+}
+
+
+
+
+impl ThinGate for DetectE
+{
+    fn result(&mut self, update: update::ExplicitUpdate) -> bool
+      {update.thick[0].0 != update.thick[0].1}
+}
+
+
+imple ThinGate for ThinDisjunct
+{
+    fn result(&mut self, update: update::ExplicitUpdate) -> bool
+      {update.thin.any(|x| x)

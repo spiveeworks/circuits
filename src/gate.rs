@@ -133,3 +133,25 @@ impl<G: JunctionGate> UpdateGate for G
           {update::Update::thick_singleton(after)}
     }
 }
+
+
+pub trait ExplicitUpdateGate
+{
+    fn update(&mut self, update::ExplicitUpdate) -> update::Update;
+}
+
+pub trait ThinGate
+{
+    fn result(&self, update::ExplicitUpdate) -> bool;
+}
+
+impl<G: ThinGate> ExplicitUpdateGate for G
+{
+    fn update(&mut self, update: update::ExplicitUpdate) -> update::Update
+    {
+        if G.result(update)
+          {update::Update::thin_singleton()}
+        else
+         {update::<Update as Default>::default()}
+    }
+}
