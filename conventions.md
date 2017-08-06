@@ -51,3 +51,27 @@ The half-syncronized splitter is a variant that responds to the original message
 Both the full sync and half sync are associative, and can be implemented in a number of ways, depending on how well-behaved the devices to which they connect can be assumed to be.
 For example, simply passing back every second response would fulfil the specification of either sync device if its delegates are garanteed not to send double responses.
 Handling double requests from the input side is very tricky.
+
+##Allocator
+
+The allocator is a way of splitting a request-response line without splitting any of the individual requests.
+If the allocator isn't waiting for its first output to respond, it will send requests to this output
+Requests forwarded in this way will immediately receive responses.
+Requests received by an allocator while its first output is occupied will be send to a second output.
+This request will not be responded to until either of the forwarded requests receive a response.
+
+The allocator thus responds to requests to indicate its ability to receive an additional request.
+
+Buffer
+------
+
+The request buffer is a device that can be in three states: 'overloaded', 'full', and 'empty'.
+- When it is empty, it passes requests forward, simultaneously responding to the original requestor; the buffer is then full
+- When it is full, it does not respond to requests:
+ - If it gets an additional request it will become overloaded
+ - If it receives a response from the request it originally forwarded, it will become empty
+- When it is overloaded, it acts in a reverse manner to the empty state:
+ - responses from the original request will be passed backwards
+ - the buffer will also immediately send another request forward
+
+The request buffer would in fact be implemented by passing both outputs of an allocator into a \[merge thingy.. buffer merge?\]
